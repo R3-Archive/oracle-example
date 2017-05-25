@@ -1,9 +1,10 @@
 package net.corda.examples.oracle
 
-import net.corda.core.crypto.generateKeyPair
 import net.corda.core.getOrThrow
 import net.corda.core.identity.Party
 import net.corda.core.node.services.ServiceInfo
+import net.corda.examples.oracle.flow.CreatePrime
+import net.corda.examples.oracle.service.Primes
 import net.corda.testing.node.MockNetwork
 import org.junit.After
 import org.junit.Before
@@ -15,7 +16,6 @@ class PrimesClientTests {
     lateinit var a: MockNetwork.MockNode
     lateinit var b: MockNetwork.MockNode
     lateinit var oracle: MockNetwork.MockNode
-    val oracleKey = generateKeyPair()
 
     @Before
     fun setUp() {
@@ -24,7 +24,7 @@ class PrimesClientTests {
         a = nodes.partyNodes[0]
         b = nodes.partyNodes[1]
         notary = nodes.notaryNode.info.notaryIdentity
-        val serviceInfo = ServiceInfo(PrimesOracle.type)
+        val serviceInfo = ServiceInfo(Primes.type)
         oracle = mockNet.createNode(nodes.mapNode.info.address, advertisedServices = serviceInfo)
         mockNet.runNetwork()
     }
