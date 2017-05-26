@@ -10,7 +10,7 @@ nth prime numbers.
 Whilst the functionality is completely superfluous (as primes can be verified deterministically via the contract code), 
 it is a useful example of how to structure an Oracle service that provides querying and signing abilities.
 
-Do read the inline comments which discuss teh rationale behind the design of the Oracle service.
+Do read the inline comments which discuss the rationale behind the design of the Oracle service.
 
 This repo is split into three CorDapps:
 
