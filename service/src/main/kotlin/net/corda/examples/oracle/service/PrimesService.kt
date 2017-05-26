@@ -28,8 +28,9 @@ object Primes {
     // This can cause some issues, for example: we do not want to serialise large objects on to the stack or objects which
     // may reference databases or other external services (which cannot be serialised!), therefore we mark certain objects
     // with tokens. When Kryo encounters one of these tokens, it doesn't serialise the object, instead, it makes a
-    // reference to the type of the object. When flows are de-serialised, the token is used to connect up the object reference
-    // to an instance which should already exist on the stack.
+    // reference to the type of the object. The tokens, in effect, bottom out the object graph crawling.
+    // When flows are de-serialised, the token is used to connect up the object reference to an instance which should 
+    // already exist on the stack.
     class Service(val services: PluginServiceHub) : SingletonSerializeAsToken() {
 
         // An instance of the Oracle cannot be initialised immediately as the network map would not have been
