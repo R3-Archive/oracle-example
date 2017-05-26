@@ -6,6 +6,11 @@ import net.corda.examples.oracle.api.ClientApi
 import java.math.BigInteger
 import java.util.function.Function
 
+// CorDapp plugin registry class.
+// Here we are registering some static web content and a web API.
+// We also have to whitelist BigInteger as it's not on the default serialisation whitelist.
+// From M12 onwards, flow whitelisting is handled by flow class annotations.
+// This CorDapp doesn't require a service.
 class ClientPlugin : CordaPluginRegistry() {
     override val webApis = listOf(Function(::ClientApi))
 

@@ -3,12 +3,14 @@ package net.corda.examples.oracle
 import net.corda.core.getOrThrow
 import net.corda.core.identity.Party
 import net.corda.core.node.services.ServiceInfo
+import net.corda.examples.oracle.contract.Prime
 import net.corda.examples.oracle.flow.CreatePrime
-import net.corda.examples.oracle.service.Primes
+import net.corda.examples.oracle.service.PrimeType
 import net.corda.testing.node.MockNetwork
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import kotlin.test.assertEquals
 
 class PrimesClientTests {
     lateinit var mockNet: MockNetwork
@@ -24,7 +26,7 @@ class PrimesClientTests {
         a = nodes.partyNodes[0]
         b = nodes.partyNodes[1]
         notary = nodes.notaryNode.info.notaryIdentity
-        val serviceInfo = ServiceInfo(Primes.type)
+        val serviceInfo = ServiceInfo(PrimeType.type)
         oracle = mockNet.createNode(nodes.mapNode.info.address, advertisedServices = serviceInfo)
         mockNet.runNetwork()
     }
@@ -38,8 +40,9 @@ class PrimesClientTests {
     fun `oracle test`() {
         val flow = a.services.startFlow(CreatePrime(100))
         mockNet.runNetwork()
-        val result = flow.resultFuture.getOrThrow()
-        println(result.tx.outputs.single().data)
+        val result = flow.resultFuture.getOrThrow().tx.outputs.single().data as Prime.State
+        assertEquals("The 100th prime number is 541.", result.toString())
+        println(result)
     }
 
 }

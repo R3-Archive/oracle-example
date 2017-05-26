@@ -11,7 +11,7 @@ TODO:
 * Finish inline TODOs
 * Make a java version
 * Add a tutorial page on the docsite
-* currently based upon M12-SNAPSHOT, commit: 6f9cdb92c7081f8224dd8a26e0790892d4f0e9dc
+* currently based upon M12-SNAPSHOT, commit: 851cccbf7e2d4c3a219ce4633f76f305f1318271
 * Need to finish the API
 * Need to add some more tests
 * Need to add some more comments; e.g. clarity around legal identity key vs advertised servie key
