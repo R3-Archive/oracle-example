@@ -36,7 +36,7 @@ object Primes {
         // An instance of the Oracle cannot be initialised immediately as the network map would not have been
         // populated at this point. This is an artifact of Corda node's start-up sequence: the ServiceHub is initialised
         // and then the network map cache is populated by querying the network map service and receiving the responses.
-        // As such we need to the primesOracle reference to be a lazy property, such that it is initialised only when
+        // As such, we need the primesOracle reference to be a lazy property so that it is initialised only when
         // first referenced by the QueryHandler or SignHandler.
         private val primesOracle by lazy {
             val myNodeInfo = services.myInfo
