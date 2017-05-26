@@ -23,7 +23,7 @@ object Primes {
 
     // We sub-class 'SingletonSerializeAsToken' to ensure that instances of this class are never serialised by Kryo.
     // When a flow is check-pointed, the annotated @Suspendable methods and any object referenced from within those
-    // annotated methods are serialised onto the stack. Kryo, the reflection based serialisation framework we use, crawls
+    // annotated methods are serialised. Kryo, the reflection based serialisation framework we use, crawls
     // the object graph and serialises anything it encounters, producing a graph of serialised objects.
     // This can cause some issues, for example: we do not want to serialise large objects on to the stack or objects which
     // may reference databases or other external services (which cannot be serialised!), therefore we mark certain objects
