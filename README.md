@@ -2,15 +2,15 @@
 
 # Corda Oracle Example
 
-Currently based upon M12-SNAPSHOT (commit: 851cccbf7e2d4c3a219ce4633f76f305f1318271).
+Currently based upon M12.
 
 This is an Oracle service and client implementation that facilitates the querying of nth prime numbers and validation of 
 nth prime numbers.
 
-Whilst the functionality is completely superfluous (as primes can be verified deterministically via the contract code), 
-it is a useful example of how to structure an Oracle service that provides querying and signing abilities.
+Whilst the functionality is superfluous (as primes can be verified deterministically via the contract code), it is a 
+useful example of how to structure an Oracle service that provides querying and signing abilities.
 
-Do read the inline comments which discuss teh rationale behind the design of the Oracle service.
+Do read the inline comments which discuss the rationale behind the design of the Oracle service.
 
 This repo is split into three CorDapps:
 

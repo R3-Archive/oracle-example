@@ -5,6 +5,9 @@ import net.corda.core.identity.Party
 import net.corda.core.node.services.ServiceInfo
 import net.corda.examples.oracle.contract.Prime
 import net.corda.examples.oracle.flow.CreatePrime
+import net.corda.examples.oracle.flow.QueryHandler
+import net.corda.examples.oracle.flow.SignHandler
+import net.corda.examples.oracle.service.Oracle
 import net.corda.examples.oracle.service.PrimeType
 import net.corda.testing.node.MockNetwork
 import org.junit.After
@@ -28,6 +31,9 @@ class PrimesClientTests {
         notary = nodes.notaryNode.info.notaryIdentity
         val serviceInfo = ServiceInfo(PrimeType.type)
         oracle = mockNet.createNode(nodes.mapNode.info.address, advertisedServices = serviceInfo)
+        oracle.installCordaService(Oracle::class.java)
+        oracle.registerInitiatedFlow(QueryHandler::class.java)
+        oracle.registerInitiatedFlow(SignHandler::class.java)
         mockNet.runNetwork()
     }
 

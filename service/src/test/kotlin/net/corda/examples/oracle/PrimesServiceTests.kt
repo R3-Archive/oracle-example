@@ -9,7 +9,6 @@ import net.corda.core.utilities.CHARLIE
 import net.corda.core.utilities.CHARLIE_KEY
 import net.corda.core.utilities.DUMMY_NOTARY
 import net.corda.examples.oracle.contract.Prime
-import net.corda.examples.oracle.service.Primes
 import net.corda.node.utilities.configureDatabase
 import net.corda.node.utilities.transaction
 import net.corda.testing.node.MockServices
@@ -36,7 +35,7 @@ class PrimesServiceTests {
         dataSource = dataSourceAndDatabase.first
         database = dataSourceAndDatabase.second
         database.transaction {
-            oracle = Primes.Oracle(CHARLIE, CHARLIE.owningKey, dummyServices)
+            oracle = Primes.Oracle(CHARLIE, dummyServices)
         }
     }
 
@@ -71,7 +70,7 @@ class PrimesServiceTests {
                     .toWireTransaction()
             val ftx: FilteredTransaction = wtx.buildFilteredTransaction {
                 when (it) {
-                    is Command -> oracle.signingKey in it.signers && it.value is Prime.Create
+                    is Command -> oracle.identity.owningKey in it.signers && it.value is Prime.Create
                     else -> false
                 }
             }
@@ -88,7 +87,7 @@ class PrimesServiceTests {
             val wtx: WireTransaction = TransactionType.General.Builder(DUMMY_NOTARY).withItems(state, command).toWireTransaction()
             val ftx: FilteredTransaction = wtx.buildFilteredTransaction {
                 when (it) {
-                    is Command -> oracle.signingKey in it.signers && it.value is Prime.Create
+                    is Command -> oracle.identity.owningKey in it.signers && it.value is Prime.Create
                     else -> false
                 }
             }
