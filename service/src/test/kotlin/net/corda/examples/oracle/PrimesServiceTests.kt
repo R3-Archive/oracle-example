@@ -9,6 +9,7 @@ import net.corda.core.utilities.CHARLIE
 import net.corda.core.utilities.CHARLIE_KEY
 import net.corda.core.utilities.DUMMY_NOTARY
 import net.corda.examples.oracle.contract.Prime
+import net.corda.examples.oracle.service.Oracle
 import net.corda.node.utilities.configureDatabase
 import net.corda.node.utilities.transaction
 import net.corda.testing.node.MockServices
@@ -24,7 +25,7 @@ import kotlin.test.assertFailsWith
 
 class PrimesServiceTests {
     val dummyServices = MockServices(CHARLIE_KEY)
-    lateinit var oracle: Primes.Oracle
+    lateinit var oracle: Oracle
     lateinit var dataSource: Closeable
     lateinit var database: Database
 
@@ -35,7 +36,7 @@ class PrimesServiceTests {
         dataSource = dataSourceAndDatabase.first
         database = dataSourceAndDatabase.second
         database.transaction {
-            oracle = Primes.Oracle(CHARLIE, dummyServices)
+            oracle = Oracle(CHARLIE, dummyServices)
         }
     }
 
