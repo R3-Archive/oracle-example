@@ -1,4 +1,4 @@
-package net.corda.examples.oracle.flow
+package net.corda.examples.oracle.service.flow
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.flows.FlowException
@@ -8,7 +8,8 @@ import net.corda.core.identity.Party
 import net.corda.core.transactions.FilteredTransaction
 import net.corda.core.utilities.ProgressTracker
 import net.corda.core.utilities.unwrap
-import net.corda.examples.oracle.service.Oracle
+import net.corda.examples.oracle.base.flow.SignPrime
+import net.corda.examples.oracle.service.service.Oracle
 
 // The Service side flow to handle Oracle signing requests.
 @InitiatedBy(SignPrime::class)

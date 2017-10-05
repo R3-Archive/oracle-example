@@ -1,14 +1,12 @@
-package net.corda.examples.oracle.api
+package net.corda.examples.oracle.client.api
 
-import net.corda.client.rpc.notUsed
 import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.StateAndRef
-import net.corda.core.getOrThrow
 import net.corda.core.messaging.CordaRPCOps
-import net.corda.examples.oracle.contract.Prime
-import net.corda.examples.oracle.flow.CreatePrime
-import org.bouncycastle.asn1.x500.X500Name
-import rx.Observable
+import net.corda.core.messaging.vaultQueryBy
+import net.corda.core.utilities.getOrThrow
+import net.corda.examples.oracle.base.contract.Prime
+import net.corda.examples.oracle.client.flow.CreatePrime
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
@@ -18,7 +16,7 @@ import javax.ws.rs.core.Response
 
 @Path("primes")
 class ClientApi(val services: CordaRPCOps) {
-    private val myLegalName: X500Name = services.nodeIdentity().legalIdentity.name
+    private val myLegalName = services.nodeInfo().legalIdentities.first().name
 
     /**
      * Returns the node's name.
@@ -36,9 +34,8 @@ class ClientApi(val services: CordaRPCOps) {
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
     fun getPeers(): Map<String, List<String>> {
-        val peers = services.networkMapUpdates()
-                .justSnapshot
-                .map { it.legalIdentity.name.toString() }
+        val peers = services.networkMapSnapshot()
+                .map { it.legalIdentities.first().name.toString() }
         return mapOf("peers" to peers)
     }
 
@@ -49,7 +46,7 @@ class ClientApi(val services: CordaRPCOps) {
     @Path("primes")
     @Produces(MediaType.APPLICATION_JSON)
     fun primes(): List<StateAndRef<ContractState>> {
-        return services.vaultAndUpdates().justSnapshot.filter { it.state.data is Prime.State }
+        return services.vaultQueryBy<Prime.State>().states
     }
 
     /**
@@ -71,13 +68,5 @@ class ClientApi(val services: CordaRPCOps) {
         }
 
         return Response.status(status).entity(message).build()
-    }
-
-
-    // Helper method to get just the snapshot portion of an RPC call which also returns an Observable of updates. It's
-    // important to unsubscribe from this Observable if we're not going to use it as otherwise we leak resources on the server.
-    private val <A> Pair<A, Observable<*>>.justSnapshot: A get() {
-        second.notUsed()
-        return first
     }
 }

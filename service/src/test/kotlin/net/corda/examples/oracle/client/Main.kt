@@ -1,12 +1,11 @@
-package net.corda.examples.oracle
+package net.corda.examples.oracle.client
 
-import com.google.common.util.concurrent.Futures
-import net.corda.core.crypto.X509Utilities.getX509Name
-import net.corda.core.getOrThrow
-import net.corda.core.node.services.ServiceInfo
-import net.corda.node.driver.driver
+import net.corda.core.identity.CordaX500Name
+import net.corda.core.utilities.getOrThrow
 import net.corda.node.services.transactions.ValidatingNotaryService
 import net.corda.nodeapi.User
+import net.corda.nodeapi.internal.ServiceInfo
+import net.corda.testing.driver.driver
 
 /**
  * This file is exclusively for being able to run your nodes through an IDE (as opposed to running deployNodes)
@@ -25,11 +24,11 @@ fun main(args: Array<String>) {
     // No permissions required as we are not invoking flows.
     val user = User("user1", "test", permissions = setOf())
     driver(isDebug = true) {
-        startNode(getX509Name("Controller", "London", "root@city.uk.example"), setOf(ServiceInfo(ValidatingNotaryService.type)))
-        val (nodeA, nodeB, nodeC) = Futures.allAsList(
-                startNode(getX509Name("NodeA", "Paris", "root@city.fr.example"), rpcUsers = listOf(user)),
-                startNode(getX509Name("NodeB", "Rome", "root@city.it.example"), rpcUsers = listOf(user)),
-                startNode(getX509Name("NodeC", "New York", "root@city.us.example"), rpcUsers = listOf(user))).getOrThrow()
+        startNode(providedName = CordaX500Name("Controller", "London", "GB"), advertisedServices = setOf(ServiceInfo(ValidatingNotaryService.type)))
+        val (nodeA, nodeB, nodeC) = listOf(
+                startNode(providedName = CordaX500Name("PartyA", "London", "GB"), rpcUsers = listOf(user)),
+                startNode(providedName = CordaX500Name("PartyB", "New York", "US"), rpcUsers = listOf(user)),
+                startNode(providedName = CordaX500Name("PartyC", "Paris", "FR"), rpcUsers = listOf(user))).map { it.getOrThrow() }
 
         startWebserver(nodeA)
         startWebserver(nodeB)
@@ -38,5 +37,3 @@ fun main(args: Array<String>) {
         waitForAllNodesToFinish()
     }
 }
-
-
