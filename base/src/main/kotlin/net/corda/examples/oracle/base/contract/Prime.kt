@@ -20,12 +20,12 @@ class Prime : Contract {
     }
 
     // Command with data items.
-    // Commands that are to be used in conjunction with an Oracle contain properties.
+    // Commands that are to be used in conjunction with an oracle contain properties.
     class Create(val index: Long, val value: Int) : CommandData
 
     // Contract code.
     // Here, we are only checking that the properties in the state match those in the command.
-    // We are relying on the Oracle to provide the correct nth prime.
+    // We are relying on the oracle to provide the correct nth prime.
     override fun verify(tx: LedgerTransaction) = requireThat {
         val command = tx.commands.requireSingleCommand<Create>().value
         val output = tx.outputsOfType<State>().single()

@@ -40,8 +40,8 @@ class Oracle(val services: ServiceHub) : SingletonSerializeAsToken() {
 
     // Signs over a transaction if the specified nth prime for a particular n is correct.
     // This function takes a filtered transaction which is a partial Merkle tree. Parts of the transaction which
-    // the Oracle doesn't need to see to opine over the correctness of the nth prime have been removed. In this case
-    // all but the Prime.Create commands have been removed. If the nth prime is correct then the Oracle signs over
+    // the oracle doesn't need to see to opine over the correctness of the nth prime have been removed. In this case
+    // all but the Prime.Create commands have been removed. If the nth prime is correct then the oracle signs over
     // the Merkle root (the hash) of the transaction.
     fun sign(ftx: FilteredTransaction): TransactionSignature {
         // Check the partial Merkle tree is valid.
@@ -49,9 +49,9 @@ class Oracle(val services: ServiceHub) : SingletonSerializeAsToken() {
 
         // Check that the correct primes are present for the index values specified.
         fun commandValidator(elem: Command<*>): Boolean {
-            // This Oracle only cares about commands which have its public key in the signers list.
-            // This Oracle also only cares about Prime.Create commands.
-            // Of course, some of these constraints can be easily amended. E.g. they Oracle can sign over multiple
+            // This oracle only cares about commands which have its public key in the signers list.
+            // This oracle also only cares about Prime.Create commands.
+            // Of course, some of these constraints can be easily amended. E.g. the oracle can sign over multiple
             // command types.
             if (!(myKey in elem.signers && elem.value is Prime.Create))
                 throw IllegalArgumentException("Oracle received unknown command (not in signers or not Prime.Create).")

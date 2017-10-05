@@ -50,7 +50,7 @@ class ClientApi(val rpcOps: CordaRPCOps) {
     }
 
     /**
-     * Creates a new prime number by consulting the primes Oracle.
+     * Creates a new prime number by consulting the primes oracle.
      */
     @GET
     @Path("create-prime")

@@ -1,5 +1,3 @@
-package net.corda.examples.oracle.service
-
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.utilities.getOrThrow
 import net.corda.node.services.transactions.ValidatingNotaryService

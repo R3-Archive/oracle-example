@@ -10,7 +10,7 @@ import net.corda.core.utilities.unwrap
 import net.corda.examples.oracle.base.flow.QueryPrime
 import net.corda.examples.oracle.service.service.Oracle
 
-// The Service side flow to handle Oracle queries.
+// The Service side flow to handle oracle queries.
 @InitiatedBy(QueryPrime::class)
 class QueryHandler(val session: FlowSession) : FlowLogic<Unit>() {
     companion object {
@@ -30,7 +30,7 @@ class QueryHandler(val session: FlowSession) : FlowLogic<Unit>() {
         val request = session.receive<Long>().unwrap { it }
         progressTracker.currentStep = SENDING
         try {
-            // Get the nth prime from the Oracle.
+            // Get the nth prime from the oracle.
             val response = serviceHub.cordaService(Oracle::class.java).query(request)
             // Send back the result.
             session.send(response)

@@ -27,7 +27,7 @@ class CreatePrime(val index: Long) : FlowLogic<SignedTransaction>() {
 
     companion object {
         object SET_UP : ProgressTracker.Step("Initialising flow.")
-        object QUERYING_THE_ORACLE : ProgressTracker.Step("Querying oracle for an nth prime.")
+        object QUERYING_THE_ORACLE : ProgressTracker.Step("Querying oracle for the Nth prime.")
         object BUILDING_THE_TX : ProgressTracker.Step("Building transaction.")
         object VERIFYING_THE_TX : ProgressTracker.Step("Verifying transaction.")
         object WE_SIGN : ProgressTracker.Step("signing transaction.")
