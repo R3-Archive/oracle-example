@@ -1,11 +1,9 @@
 package net.corda.examples.oracle.client.api
 
-import net.corda.core.contracts.ContractState
-import net.corda.core.contracts.StateAndRef
 import net.corda.core.messaging.CordaRPCOps
 import net.corda.core.messaging.vaultQueryBy
 import net.corda.core.utilities.getOrThrow
-import net.corda.examples.oracle.base.contract.Prime
+import net.corda.examples.oracle.base.contract.PrimeState
 import net.corda.examples.oracle.client.flow.CreatePrime
 import javax.ws.rs.GET
 import javax.ws.rs.Path
@@ -27,8 +25,7 @@ class ClientApi(val rpcOps: CordaRPCOps) {
     fun whoami() = mapOf("me" to myLegalName)
 
     /**
-     * Returns all parties registered with the [NetworkMapService]. These names can be used to look up identities
-     * using the [IdentityService].
+     * Returns all parties registered with the [NetworkMapService].
      */
     @GET
     @Path("peers")
@@ -45,9 +42,7 @@ class ClientApi(val rpcOps: CordaRPCOps) {
     @GET
     @Path("primes")
     @Produces(MediaType.APPLICATION_JSON)
-    fun primes(): List<StateAndRef<ContractState>> {
-        return rpcOps.vaultQueryBy<Prime.State>().states
-    }
+    fun primes() = rpcOps.vaultQueryBy<PrimeState>().states
 
     /**
      * Creates a new prime number by consulting the primes oracle.
@@ -55,11 +50,11 @@ class ClientApi(val rpcOps: CordaRPCOps) {
     @GET
     @Path("create-prime")
     @Produces(MediaType.APPLICATION_JSON)
-    fun createPrime(@QueryParam(value = "n") n: Long): Response {
-        // Start the CretePrime flow. We block and wait for the flow to return.
+    fun createPrime(@QueryParam(value = "n") n: Int): Response {
+        // Start the CreatePrime flow. We block and wait for the flow to return.
         val (status, message) = try {
             val flowHandle = rpcOps.startFlowDynamic(CreatePrime::class.java, n)
-            val result = flowHandle.use { it.returnValue.getOrThrow() }.tx.outputs.single().data as Prime.State
+            val result = flowHandle.returnValue.getOrThrow().tx.outputsOfType<PrimeState>().single()
             // Return the response.
             Response.Status.CREATED to "$result"
         } catch (e: Exception) {

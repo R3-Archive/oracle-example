@@ -10,33 +10,32 @@ import net.corda.core.utilities.unwrap
 import net.corda.examples.oracle.base.flow.QueryPrime
 import net.corda.examples.oracle.service.service.Oracle
 
-// The Service side flow to handle oracle queries.
+// The oracle flow to handle prime-number queries.
 @InitiatedBy(QueryPrime::class)
 class QueryHandler(val session: FlowSession) : FlowLogic<Unit>() {
     companion object {
-        object RECEIVED : ProgressTracker.Step("Received query request")
-        object SENDING : ProgressTracker.Step("Sending query response")
+        object RECEIVING : ProgressTracker.Step("Receiving query request.")
+        object CALCULATING : ProgressTracker.Step("Calculating Nth prime.")
+        object SENDING : ProgressTracker.Step("Sending query response.")
     }
 
-    override val progressTracker = ProgressTracker(RECEIVED, SENDING)
-
-    init {
-        progressTracker.currentStep = RECEIVED
-    }
+    override val progressTracker = ProgressTracker(RECEIVING, CALCULATING, SENDING)
 
     @Suspendable
     override fun call() {
-        // Receive the request.
-        val request = session.receive<Long>().unwrap { it }
-        progressTracker.currentStep = SENDING
-        try {
+        progressTracker.currentStep = RECEIVING
+        val request = session.receive<Int>().unwrap { it }
+
+        progressTracker.currentStep = CALCULATING
+        val response = try {
             // Get the nth prime from the oracle.
-            val response = serviceHub.cordaService(Oracle::class.java).query(request)
-            // Send back the result.
-            session.send(response)
+            serviceHub.cordaService(Oracle::class.java).query(request)
         } catch (e: Exception) {
-            // Re-throw exceptions as Flow Exceptions so they are propagated to other nodes.
+            // Re-throw the exception as a FlowException so its propagated to the querying node.
             throw FlowException(e)
         }
+
+        progressTracker.currentStep = SENDING
+        session.send(response)
     }
 }

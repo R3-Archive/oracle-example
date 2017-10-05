@@ -26,3 +26,8 @@ This repo is split into three CorDapps:
 The CorDapp is run by following the instructions here: 
 https://docs.corda.net/tutorial-cordapp.html#running-the-example-cordapp.
 
+Once the nodes are running, you can request a prime via the browser using:
+
+    http://localhost:10007/api/primes/create-prime?n=X
+    
+Where `X` is the index of the prime number you want to request.

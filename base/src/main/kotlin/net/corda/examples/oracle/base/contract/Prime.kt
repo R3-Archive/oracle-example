@@ -4,31 +4,26 @@ import net.corda.core.contracts.*
 import net.corda.core.identity.AbstractParty
 import net.corda.core.transactions.LedgerTransaction
 
-const val PRIME_PROGRAM_ID: ContractClassName = "net.corda.examples.oracle.base.contract.Prime"
+const val PRIME_PROGRAM_ID: ContractClassName = "net.corda.examples.oracle.base.contract.PrimeContract"
 
-// Contract and state object definition.
-class Prime : Contract {
+class PrimeContract : Contract {
+    // Commands signed by oracles must contain the facts the oracle is attesting to.
+    class Create(val n: Int, val nthPrime: Int) : CommandData
 
-    // State object with custom properties defined in the constructor.
-    // If 'index' is a natural number N then 'value' is the Nth prime.
-    // Requester represents the Party that will store this fact (in the node vault).
-    data class State(val index: Long,
-                     val value: Int,
-                     val requester: AbstractParty) : ContractState {
-        override val participants: List<AbstractParty> get() = listOf(requester)
-        override fun toString() = "The ${index}th prime number is $value."
-    }
-
-    // Command with data items.
-    // Commands that are to be used in conjunction with an oracle contain properties.
-    class Create(val index: Long, val value: Int) : CommandData
-
-    // Contract code.
-    // Here, we are only checking that the properties in the state match those in the command.
-    // We are relying on the oracle to provide the correct nth prime.
+    // Our contract does not check that the Nth prime is correct. Instead, it checks that the
+    // information in the command and state match.
     override fun verify(tx: LedgerTransaction) = requireThat {
         val command = tx.commands.requireSingleCommand<Create>().value
-        val output = tx.outputsOfType<State>().single()
-        "The output prime is not correct." using (command.index == output.index && command.value == output.value)
+        val output = tx.outputsOfType<PrimeState>().single()
+        "The output prime is not correct." using (command.n == output.n && command.nthPrime == output.nthPrime)
     }
+}
+
+// If 'n' is a natural number N then 'nthPrime' is the Nth prime.
+// `Requester` is the Party that will store this fact in its vault.
+data class PrimeState(val n: Int,
+                      val nthPrime: Int,
+                      val requester: AbstractParty) : ContractState {
+    override val participants: List<AbstractParty> get() = listOf(requester)
+    override fun toString() = "The ${n}th prime number is $nthPrime."
 }

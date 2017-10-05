@@ -11,7 +11,8 @@ import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
 import net.corda.examples.oracle.base.contract.PRIME_PROGRAM_ID
-import net.corda.examples.oracle.base.contract.Prime
+import net.corda.examples.oracle.base.contract.PrimeContract
+import net.corda.examples.oracle.base.contract.PrimeState
 import net.corda.examples.oracle.base.flow.QueryPrime
 import net.corda.examples.oracle.base.flow.SignPrime
 import java.util.function.Predicate
@@ -23,7 +24,7 @@ import java.util.function.Predicate
 // - Finalises the transaction
 @InitiatingFlow
 @StartableByRPC
-class CreatePrime(val index: Long) : FlowLogic<SignedTransaction>() {
+class CreatePrime(val index: Int) : FlowLogic<SignedTransaction>() {
 
     companion object {
         object SET_UP : ProgressTracker.Step("Initialising flow.")
@@ -55,8 +56,8 @@ class CreatePrime(val index: Long) : FlowLogic<SignedTransaction>() {
         val nthPrimeRequestedFromOracle = subFlow(QueryPrime(oracle, index))
 
         progressTracker.currentStep = BUILDING_THE_TX
-        val primeState = Prime.State(index, nthPrimeRequestedFromOracle, ourIdentity)
-        val primeCmdData = Prime.Create(index, nthPrimeRequestedFromOracle)
+        val primeState = PrimeState(index, nthPrimeRequestedFromOracle, ourIdentity)
+        val primeCmdData = PrimeContract.Create(index, nthPrimeRequestedFromOracle)
         // By listing the oracle here, we make the oracle a required signer.
         val primeCmdRequiredSigners = listOf(oracle.owningKey, ourIdentity.owningKey)
         val builder = TransactionBuilder(notary)
@@ -74,7 +75,7 @@ class CreatePrime(val index: Long) : FlowLogic<SignedTransaction>() {
         // that require its signature.
         val ftx = ptx.buildFilteredTransaction(Predicate {
             when (it) {
-                is Command<*> -> oracle.owningKey in it.signers && it.value is Prime.Create
+                is Command<*> -> oracle.owningKey in it.signers && it.value is PrimeContract.Create
                 else -> false
             }
         })
