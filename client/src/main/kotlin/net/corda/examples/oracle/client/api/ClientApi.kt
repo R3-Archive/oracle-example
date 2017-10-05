@@ -15,8 +15,8 @@ import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.Response
 
 @Path("primes")
-class ClientApi(val services: CordaRPCOps) {
-    private val myLegalName = services.nodeInfo().legalIdentities.first().name
+class ClientApi(val rpcOps: CordaRPCOps) {
+    private val myLegalName = rpcOps.nodeInfo().legalIdentities.first().name
 
     /**
      * Returns the node's name.
@@ -34,7 +34,7 @@ class ClientApi(val services: CordaRPCOps) {
     @Path("peers")
     @Produces(MediaType.APPLICATION_JSON)
     fun getPeers(): Map<String, List<String>> {
-        val peers = services.networkMapSnapshot()
+        val peers = rpcOps.networkMapSnapshot()
                 .map { it.legalIdentities.first().name.toString() }
         return mapOf("peers" to peers)
     }
@@ -46,7 +46,7 @@ class ClientApi(val services: CordaRPCOps) {
     @Path("primes")
     @Produces(MediaType.APPLICATION_JSON)
     fun primes(): List<StateAndRef<ContractState>> {
-        return services.vaultQueryBy<Prime.State>().states
+        return rpcOps.vaultQueryBy<Prime.State>().states
     }
 
     /**
@@ -58,7 +58,7 @@ class ClientApi(val services: CordaRPCOps) {
     fun createPrime(@QueryParam(value = "n") n: Long): Response {
         // Start the CretePrime flow. We block and wait for the flow to return.
         val (status, message) = try {
-            val flowHandle = services.startFlowDynamic(CreatePrime::class.java, n)
+            val flowHandle = rpcOps.startFlowDynamic(CreatePrime::class.java, n)
             val result = flowHandle.use { it.returnValue.getOrThrow() }.tx.outputs.single().data as Prime.State
             // Return the response.
             Response.Status.CREATED to "$result"

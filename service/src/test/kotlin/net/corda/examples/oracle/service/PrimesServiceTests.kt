@@ -19,7 +19,7 @@ class PrimesServiceTests : TestDependencyInjectionBase() {
 
     @Test
     fun `successful query`() {
-        assertEquals(104729, oracle.query(10000).toInt())
+        assertEquals(104729, oracle.query(10000))
     }
 
     @Test
