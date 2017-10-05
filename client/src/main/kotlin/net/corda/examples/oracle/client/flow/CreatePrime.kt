@@ -2,6 +2,7 @@ package net.corda.examples.oracle.client.flow
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
+import net.corda.core.contracts.StateAndContract
 import net.corda.core.flows.FinalityFlow
 import net.corda.core.flows.FlowLogic
 import net.corda.core.flows.InitiatingFlow
@@ -10,6 +11,7 @@ import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.core.utilities.ProgressTracker
+import net.corda.examples.oracle.base.contract.PRIME_PROGRAM_ID
 import net.corda.examples.oracle.base.contract.Prime
 import net.corda.examples.oracle.base.flow.QueryPrime
 import net.corda.examples.oracle.base.flow.SignPrime
@@ -44,7 +46,7 @@ class CreatePrime(val index: Long) : FlowLogic<SignedTransaction>() {
         val notary = serviceHub.networkMapCache.notaryIdentities.first()
         // We get the oracle reference by using the ServiceType definition defined in the base CorDapp.
         val oracle = serviceHub.networkMapCache.getNodeByLegalName(CordaX500Name("Oracle", "New York","US"))?.legalIdentities?.first()
-                ?: throw IllegalArgumentException("Requested oracle ('O=Oracle,L=New York,C=US') not found on network.")
+                 ?: throw IllegalArgumentException("Requested oracle ('O=Oracle,L=New York,C=US') not found on network.")
 
         // Query the Oracle to get specified nth prime numberz`.
         progressTracker.currentStep = QUERYING
@@ -59,8 +61,9 @@ class CreatePrime(val index: Long) : FlowLogic<SignedTransaction>() {
         val command = Command(Prime.Create(index, nthPrime), listOf(oracle.owningKey, ourIdentity.owningKey))
         // Create a new prime state.
         val state = Prime.State(index, nthPrime, ourIdentity)
+        val stateAndContract = StateAndContract(state, PRIME_PROGRAM_ID)
         // Add the state and the command to the builder.
-        val builder = TransactionBuilder(notary).withItems(command, state)
+        val builder = TransactionBuilder(notary).withItems(command, stateAndContract)
 
         progressTracker.currentStep = VERIFYING
         // Verify the transaction.

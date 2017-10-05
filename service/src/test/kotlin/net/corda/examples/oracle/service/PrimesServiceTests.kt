@@ -1,4 +1,4 @@
-package net.corda.examples.oracle.client
+package net.corda.examples.oracle.service
 
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndContract
@@ -15,7 +15,7 @@ import kotlin.test.assertFailsWith
 
 class PrimesServiceTests : TestDependencyInjectionBase() {
     private val dummyServices = MockServices(listOf("net.corda.examples.oracle.base.contract"), CHARLIE_KEY)
-    private val oracle = Oracle(CHARLIE, dummyServices)
+    private val oracle = Oracle(dummyServices)
 
     @Test
     fun `successful query`() {
@@ -38,7 +38,7 @@ class PrimesServiceTests : TestDependencyInjectionBase() {
                 .toWireTransaction(dummyServices)
                 .buildFilteredTransaction(Predicate {
                     when (it) {
-                        is Command<*> -> oracle.identity.owningKey in it.signers && it.value is Prime.Create
+                        is Command<*> -> oracle.services.myInfo.legalIdentities.first().owningKey in it.signers && it.value is Prime.Create
                         else -> false
                     }
                 })
@@ -56,10 +56,10 @@ class PrimesServiceTests : TestDependencyInjectionBase() {
                 .toWireTransaction(oracle.services)
                 .buildFilteredTransaction(Predicate {
                     when (it) {
-                        is Command<*> -> oracle.identity.owningKey in it.signers && it.value is Prime.Create
+                        is Command<*> -> oracle.services.myInfo.legalIdentities.first().owningKey in it.signers && it.value is Prime.Create
                         else -> false
                     }
                 })
-        assertFailsWith<IllegalArgumentException> { oracle.sign(ftx) }
+        assertFailsWith<IllegalArgumentException>("Incorrect prime specified.") { oracle.sign(ftx) }
     }
 }

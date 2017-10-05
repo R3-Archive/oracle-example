@@ -2,7 +2,6 @@ package net.corda.examples.oracle.service.service
 
 import net.corda.core.contracts.Command
 import net.corda.core.crypto.TransactionSignature
-import net.corda.core.identity.Party
 import net.corda.core.node.ServiceHub
 import net.corda.core.node.services.CordaService
 import net.corda.core.serialization.SingletonSerializeAsToken
@@ -20,11 +19,8 @@ import java.math.BigInteger
 // reference to the type of the object. When flows are de-serialised, the token is used to connect up the object reference
 // to an instance which should already exist on the stack.
 @CordaService
-class Oracle(val identity: Party, val services: ServiceHub) : SingletonSerializeAsToken() {
-    // @CordaService requires us to have a constructor that takes in a single parameter of type PluginServiceHub.
-    // This is used by the node to automatically install the Oracle.
-    // We use the primary constructor for testing.
-    constructor(services: ServiceHub) : this(services.cordaService(Oracle::class.java).identity, services)
+class Oracle(val services: ServiceHub) : SingletonSerializeAsToken() {
+    private val myKey = services.myInfo.legalIdentities.first().owningKey
 
     // All the prime numbers, probably.
     // Generates a list of natural numbers and filters out the non-primes.
@@ -57,7 +53,7 @@ class Oracle(val identity: Party, val services: ServiceHub) : SingletonSerialize
             // This Oracle also only cares about Prime.Create commands.
             // Of course, some of these constraints can be easily amended. E.g. they Oracle can sign over multiple
             // command types.
-            if (!(identity.owningKey in elem.signers && elem.value is Prime.Create))
+            if (!(myKey in elem.signers && elem.value is Prime.Create))
                 throw IllegalArgumentException("Oracle received unknown command (not in signers or not Prime.Create).")
             val prime = elem.value as Prime.Create
             // This is where the check the validity of the nth prime.
@@ -74,9 +70,9 @@ class Oracle(val identity: Party, val services: ServiceHub) : SingletonSerialize
         }
 
         // Validate the commands.
-        if (!ftx.checkWithFun(::check)) throw IllegalArgumentException()
+        if (!ftx.checkWithFun(::check)) throw IllegalArgumentException("Incorrect prime specified.")
 
         // Sign over the Merkle root and return the digital signature.
-        return services.createSignature(ftx, identity.owningKey)
+        return services.createSignature(ftx, myKey)
     }
 }

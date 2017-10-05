@@ -1,4 +1,4 @@
-package net.corda.examples.oracle.client
+package net.corda.examples.oracle.service
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.utilities.getOrThrow
