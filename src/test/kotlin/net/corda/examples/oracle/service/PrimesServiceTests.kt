@@ -61,6 +61,6 @@ class PrimesServiceTests : TestDependencyInjectionBase() {
                         else -> false
                     }
                 })
-        assertFailsWith<IllegalArgumentException>("Incorrect prime specified.") { oracle.sign(ftx) }
+        assertFailsWith<IllegalArgumentException> { oracle.sign(ftx) }
     }
 }

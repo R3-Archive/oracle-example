@@ -68,7 +68,7 @@ class Oracle(val services: ServiceHub) : SingletonSerializeAsToken() {
         if (isValid) {
             return services.createSignature(ftx, myKey)
         } else {
-            throw IllegalArgumentException("Oracle signature requested over invalid signature.")
+            throw IllegalArgumentException("Oracle signature requested over invalid transaction.")
         }
     }
 }
