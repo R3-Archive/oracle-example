@@ -47,26 +47,28 @@ class Oracle(val services: ServiceHub) : SingletonSerializeAsToken() {
 
         // Checks that the correct primes are present for the index values specified, and throws an exception if
         // another transaction component is found.
-        ftx.checkWithFun({
+        val isValid = ftx.checkWithFun {
             when (it) {
                 is Command<*> -> {
                     // This oracle only cares about Prime.Create commands that have its public key in the signers list.
                     // Of course, some of these constraints can be easily amended. For example, the oracle can sign
                     // over multiple command types.
-                    if (!(myKey in it.signers && it.value is PrimeContract.Create))
-                        throw IllegalArgumentException("Oracle received unknown command (not in signers or not Prime.Create).")
-                    val prime = it.value as PrimeContract.Create
-                    // This is where we check the validity of the nth prime.
-                    if (query(prime.n) != prime.nthPrime)
-                        throw IllegalArgumentException("Incorrect prime specified.")
-                    true
+                    if (it.value is PrimeContract.Create) {
+                        val cmdData = it.value as PrimeContract.Create
+                        myKey in it.signers && query(cmdData.n) == cmdData.nthPrime
+                    } else {
+                        false
+                    }
                 }
 
                 else -> throw IllegalArgumentException("Oracle received data of a different type than expected.")
             }
-        })
+        }
 
-        // Return a signature over the transaction.
-        return services.createSignature(ftx, myKey)
+        if (isValid) {
+            return services.createSignature(ftx, myKey)
+        } else {
+            throw IllegalArgumentException("Oracle signature requested over invalid signature.")
+        }
     }
 }
