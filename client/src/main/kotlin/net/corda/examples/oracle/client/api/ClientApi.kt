@@ -62,6 +62,9 @@ class ClientApi(val rpcOps: CordaRPCOps) {
             Response.Status.BAD_REQUEST to e.message
         }
 
-        return Response.status(status).entity(message).build()
+        return Response
+                .status(status)
+                .entity(mapOf("result" to message))
+                .build()
     }
 }
