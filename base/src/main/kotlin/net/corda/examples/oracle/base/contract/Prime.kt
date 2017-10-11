@@ -13,9 +13,11 @@ class PrimeContract : Contract {
     // Our contract does not check that the Nth prime is correct. Instead, it checks that the
     // information in the command and state match.
     override fun verify(tx: LedgerTransaction) = requireThat {
-        val command = tx.commands.requireSingleCommand<Create>().value
+        "There are no inputs" using (tx.inputs.isEmpty())
         val output = tx.outputsOfType<PrimeState>().single()
-        "The output prime is not correct." using (command.n == output.n && command.nthPrime == output.nthPrime)
+        val command = tx.commands.requireSingleCommand<Create>().value
+        "The prime in the output does not match the prime in the command." using
+                (command.n == output.n && command.nthPrime == output.nthPrime)
     }
 }
 

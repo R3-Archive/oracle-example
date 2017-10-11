@@ -44,7 +44,9 @@ class PrimesClientTests {
         val flow = a.services.startFlow(CreatePrime(100))
         mockNet.runNetwork()
         val result = flow.resultFuture.getOrThrow().tx.outputsOfType<PrimeState>().single()
-        assertEquals("The 100th prime number is 541.", result.toString())
+        assertEquals(100, result.n)
+        val prime100 = 541
+        assertEquals(prime100, result.nthPrime)
     }
 
 }

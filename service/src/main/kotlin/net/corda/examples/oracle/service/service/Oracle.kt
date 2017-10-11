@@ -45,27 +45,22 @@ class Oracle(val services: ServiceHub) : SingletonSerializeAsToken() {
         // Check the partial Merkle tree is valid.
         ftx.verify()
 
-        // Checks that the correct primes are present for the index values specified, and throws an exception if
-        // another transaction component is found.
-        val isValid = ftx.checkWithFun {
-            when (it) {
-                is Command<*> -> {
-                    // This oracle only cares about Prime.Create commands that have its public key in the signers list.
-                    // Of course, some of these constraints can be easily amended. For example, the oracle can sign
-                    // over multiple command types.
-                    if (it.value is PrimeContract.Create) {
-                        val cmdData = it.value as PrimeContract.Create
-                        myKey in it.signers && query(cmdData.n) == cmdData.nthPrime
-                    } else {
-                        false
-                    }
-                }
-
-                else -> throw IllegalArgumentException("Oracle received data of a different type than expected.")
+        /** Returns true if the component is an Create command that:
+         *  - States the correct prime
+         *  - Has the oracle listed as a signer
+         */
+        fun isCommandWithCorrectPrimeAndIAmSigner(elem: Any) = when {
+            elem is Command<*> && elem.value is PrimeContract.Create -> {
+                val cmdData = elem.value as PrimeContract.Create
+                myKey in elem.signers && query(cmdData.n) == cmdData.nthPrime
             }
+            else -> false
         }
 
-        if (isValid) {
+        // Is it a Merkle tree we are willing to sign over?
+        val isValidMerkleTree = ftx.checkWithFun(::isCommandWithCorrectPrimeAndIAmSigner)
+
+        if (isValidMerkleTree) {
             return services.createSignature(ftx, myKey)
         } else {
             throw IllegalArgumentException("Oracle signature requested over invalid transaction.")
