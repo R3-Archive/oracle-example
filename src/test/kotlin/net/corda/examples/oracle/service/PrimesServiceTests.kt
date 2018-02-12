@@ -2,21 +2,26 @@ package net.corda.examples.oracle.service
 
 import net.corda.core.contracts.Command
 import net.corda.core.contracts.StateAndContract
+import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.TransactionBuilder
 import net.corda.examples.oracle.base.contract.PRIME_PROGRAM_ID
 import net.corda.examples.oracle.base.contract.PrimeContract
 import net.corda.examples.oracle.base.contract.PrimeState
 import net.corda.examples.oracle.service.service.Oracle
-import net.corda.testing.*
+import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
+import net.corda.testing.node.makeTestIdentityService
 import org.junit.Test
 import java.util.function.Predicate
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-class PrimesServiceTests : TestDependencyInjectionBase() {
-    private val dummyServices = MockServices(listOf("net.corda.examples.oracle.base.contract"), CHARLIE_KEY)
+class PrimesServiceTests {
+    private val oracleIdentity = TestIdentity(CordaX500Name("Oracle", "", "GB"))
+    private val dummyServices = MockServices(listOf("net.corda.examples.oracle.base.contract"), identityService = makeTestIdentityService(), initialIdentity = oracleIdentity)
     private val oracle = Oracle(dummyServices)
+    private val aliceIdentity = TestIdentity(CordaX500Name("Alice", "", "GB"))
+    private val notaryIdentity = TestIdentity(CordaX500Name("Notary", "", "GB"))
 
     @Test
     fun `oracle returns correct Nth prime`() {
@@ -31,10 +36,10 @@ class PrimesServiceTests : TestDependencyInjectionBase() {
 
     @Test
     fun `oracle signs transactions including a valid prime`() {
-        val command = Command(PrimeContract.Create(10, 29), listOf(CHARLIE.owningKey))
-        val state = PrimeState(10, 29, ALICE)
+        val command = Command(PrimeContract.Create(10, 29), listOf(oracleIdentity.publicKey))
+        val state = PrimeState(10, 29, aliceIdentity.party)
         val stateAndContract = StateAndContract(state, PRIME_PROGRAM_ID)
-        val ftx = TransactionBuilder(DUMMY_NOTARY)
+        val ftx = TransactionBuilder(notaryIdentity.party)
                 .withItems(stateAndContract, command)
                 .toWireTransaction(dummyServices)
                 .buildFilteredTransaction(Predicate {
@@ -49,10 +54,10 @@ class PrimesServiceTests : TestDependencyInjectionBase() {
 
     @Test
     fun `oracle does not sign transactions including an invalid prime`() {
-        val command = Command(PrimeContract.Create(10, 1000), listOf(CHARLIE.owningKey))
-        val state = PrimeState(10, 29, ALICE)
+        val command = Command(PrimeContract.Create(10, 1000), listOf(oracleIdentity.publicKey))
+        val state = PrimeState(10, 29, aliceIdentity.party)
         val stateAndContract = StateAndContract(state, PRIME_PROGRAM_ID)
-        val ftx = TransactionBuilder(DUMMY_NOTARY)
+        val ftx = TransactionBuilder(notaryIdentity.party)
                 .withItems(stateAndContract, command)
                 .toWireTransaction(oracle.services)
                 .buildFilteredTransaction(Predicate {
