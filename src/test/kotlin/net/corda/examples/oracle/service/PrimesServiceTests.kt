@@ -17,7 +17,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class PrimesServiceTests {
-    private val oracleIdentity = TestIdentity(CordaX500Name("Oracle", "", "GB"))
+    private val oracleIdentity = TestIdentity(CordaX500Name("Oracle", "New York", "US"))
     private val dummyServices = MockServices(listOf("net.corda.examples.oracle.base.contract"), identityService = makeTestIdentityService(), initialIdentity = oracleIdentity)
     private val oracle = Oracle(dummyServices)
     private val aliceIdentity = TestIdentity(CordaX500Name("Alice", "", "GB"))

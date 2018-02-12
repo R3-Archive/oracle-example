@@ -7,6 +7,7 @@ import net.corda.examples.oracle.client.flow.CreatePrime
 import net.corda.examples.oracle.service.flow.QueryHandler
 import net.corda.examples.oracle.service.flow.SignHandler
 import net.corda.testing.node.MockNetwork
+import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
 import net.corda.testing.node.startFlow
 import org.junit.After
@@ -22,7 +23,8 @@ class PrimesClientTests {
     fun setUp() {
         a = mockNet.createNode()
 
-        val oracle = mockNet.createNode()
+        val oracleName = CordaX500Name("Oracle", "New York", "US")
+        val oracle = mockNet.createNode(MockNodeParameters(legalName = oracleName))
         listOf(QueryHandler::class.java, SignHandler::class.java).forEach { oracle.registerInitiatedFlow(it) }
 
         mockNet.runNetwork()
