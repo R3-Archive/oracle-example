@@ -8,9 +8,11 @@ import net.corda.examples.oracle.base.contract.PRIME_PROGRAM_ID
 import net.corda.examples.oracle.base.contract.PrimeContract
 import net.corda.examples.oracle.base.contract.PrimeState
 import net.corda.examples.oracle.service.service.Oracle
+import net.corda.testing.core.SerializationEnvironmentRule
 import net.corda.testing.core.TestIdentity
 import net.corda.testing.node.MockServices
 import net.corda.testing.node.makeTestIdentityService
+import org.junit.Rule
 import org.junit.Test
 import java.util.function.Predicate
 import kotlin.test.assertEquals
@@ -18,10 +20,14 @@ import kotlin.test.assertFailsWith
 
 class PrimesServiceTests {
     private val oracleIdentity = TestIdentity(CordaX500Name("Oracle", "New York", "US"))
-    private val dummyServices = MockServices(listOf("net.corda.examples.oracle.base.contract"), identityService = makeTestIdentityService(), initialIdentity = oracleIdentity)
+    private val dummyServices = MockServices(listOf("net.corda.examples.oracle.base.contract"), oracleIdentity)
     private val oracle = Oracle(dummyServices)
     private val aliceIdentity = TestIdentity(CordaX500Name("Alice", "", "GB"))
     private val notaryIdentity = TestIdentity(CordaX500Name("Notary", "", "GB"))
+
+    @Rule
+    @JvmField
+    val testSerialization = SerializationEnvironmentRule()
 
     @Test
     fun `oracle returns correct Nth prime`() {
