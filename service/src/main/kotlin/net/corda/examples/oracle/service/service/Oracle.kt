@@ -32,7 +32,7 @@ class Oracle(val services: ServiceHub) : SingletonSerializeAsToken() {
 
     // Returns the Nth prime for N > 0.
     fun query(n: Int): Int {
-        require(n > 1) { "N must be greater than one." }
+        require(n > 0) { "n must be at least one." } // URL param is n not N.
         return primes.take(n).last()
     }
 
