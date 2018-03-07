@@ -17,12 +17,21 @@ class QueryHandler(val session: FlowSession) : FlowLogic<Unit>() {
         object RECEIVING : ProgressTracker.Step("Receiving query request.")
         object CALCULATING : ProgressTracker.Step("Calculating Nth prime.")
         object SENDING : ProgressTracker.Step("Sending query response.")
+        object INITIAL_CHECK_RESP: ProgressTracker.Step("Initial check response.")
     }
 
-    override val progressTracker = ProgressTracker(RECEIVING, CALCULATING, SENDING)
+    override val progressTracker = ProgressTracker(INITIAL_CHECK_RESP, RECEIVING, CALCULATING, SENDING)
 
     @Suspendable
     override fun call() {
+        progressTracker.currentStep = INITIAL_CHECK_RESP
+        if (session.receive<String>().unwrap { it } == QueryPrime.HEARTBEAT) {
+            logger.info("MKIT: - Received HEARTBEAT")
+            session.send(true)
+        } else {
+            throw FlowException("Expecting Heartbeat call.")
+        }
+
         progressTracker.currentStep = RECEIVING
         val request = session.receive<Int>().unwrap { it }
 

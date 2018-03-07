@@ -2,10 +2,7 @@ package net.corda.examples.oracle.client.flow
 
 import co.paralleluniverse.fibers.Suspendable
 import net.corda.core.contracts.Command
-import net.corda.core.flows.FinalityFlow
-import net.corda.core.flows.FlowLogic
-import net.corda.core.flows.InitiatingFlow
-import net.corda.core.flows.StartableByRPC
+import net.corda.core.flows.*
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.transactions.TransactionBuilder
@@ -22,7 +19,7 @@ import java.util.function.Predicate
 // - Adds it to a transaction and signs it
 // - Uses 'SignPrime' to gather the oracle's signature attesting that this really is the Nth prime
 // - Finalises the transaction
-@InitiatingFlow
+@InitiatingFlow(version = 2)
 @StartableByRPC
 class CreatePrime(val index: Int) : FlowLogic<SignedTransaction>() {
 
