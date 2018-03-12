@@ -2,6 +2,7 @@ package net.corda.examples.oracle
 
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.utilities.getOrThrow
+import net.corda.testing.driver.DriverParameters
 import net.corda.testing.driver.driver
 import net.corda.testing.node.User
 
@@ -21,7 +22,7 @@ import net.corda.testing.node.User
 fun main(args: Array<String>) {
     // No permissions required as we are not invoking flows.
     val user = User("user1", "test", permissions = setOf())
-    driver(isDebug = true, waitForAllNodesToFinish = true) {
+    driver(DriverParameters(isDebug = true, waitForAllNodesToFinish = true)) {
         val (partyA, oracle) = listOf(
                 startNode(providedName = CordaX500Name("PartyA", "London", "GB"), rpcUsers = listOf(user)),
                 startNode(providedName = CordaX500Name("Oracle", "New York", "US"), rpcUsers = listOf(user))).map { it.getOrThrow() }

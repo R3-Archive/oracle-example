@@ -9,7 +9,6 @@ import net.corda.examples.oracle.service.flow.SignHandler
 import net.corda.testing.node.MockNetwork
 import net.corda.testing.node.MockNodeParameters
 import net.corda.testing.node.StartedMockNode
-import net.corda.testing.node.startFlow
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -37,7 +36,7 @@ class PrimesClientTests {
 
     @Test
     fun `oracle returns correct Nth prime`() {
-        val flow = a.services.startFlow(CreatePrime(100))
+        val flow = a.startFlow(CreatePrime(100))
         mockNet.runNetwork()
         val result = flow.getOrThrow().tx.outputsOfType<PrimeState>().single()
         assertEquals(100, result.n)
