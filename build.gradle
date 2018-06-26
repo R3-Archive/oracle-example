@@ -65,7 +65,6 @@ dependencies {
 
     // Corda integration dependencies
     cordaCompile "net.corda:corda-core:$corda_release_version"
-    cordaCompile "net.corda:corda-finance:$corda_release_version"
     cordaCompile "net.corda:corda-jackson:$corda_release_version"
     cordaCompile "net.corda:corda-rpc:$corda_release_version"
     cordaCompile "net.corda:corda-node-api:$corda_release_version"
@@ -94,9 +93,13 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 task deployNodes(type: net.corda.plugins.Cordform, dependsOn: ['jar']) {
     directory "./build/nodes"
     node {
-        name "O=NetworkMapAndNotary,L=London,C=GB"
-        notary = [validating : true]
+        name "O=Notary,L=London,C=GB"
+        notary = [validating : false]
         p2pPort 10002
+        rpcSettings {
+            address("localhost:10003")
+            adminAddress("localhost:10043")
+        }
         cordapps = []
     }
     node {
